@@ -34,13 +34,25 @@ async function post() {
 </script>
 
 <template>
-  <h1>{{ header }}</h1>
-  <h2 v-if="respond">{{ respond }}</h2>
-  <form @submit.prevent="post">
-    <input v-if="header === 'Sign Up'" v-model="email" placeholder="Email" required>
-    <input v-model="username" placeholder="Username" required>
-    <input v-model="password" placeholder="Password" type="password" required>
-    <button type="submit">Submit</button>
-  </form>
-  <button @click="toggle(button)">{{ button }}</button>
+  <div class="h-fit flex justify-center items-center flex-col m-24">
+    <div class="bg-nav-bg p-2 py-0 rounded-xl">
+      <div>
+        <h1 class="text-5xl m-6 text-darker-blue text-center font-poppins">{{ header }}</h1>
+        <h2 class="text-red-600 m-2 text-center" v-if="respond">{{ respond }}</h2>
+      </div>
+      <form @submit.prevent="post">
+        <div>
+          <input class="rounded-xl m-2 w-buttonr h-12 text-3xl outline-blue-500 outline-8 text-center" v-if="header === 'Sign Up'" v-model="email" placeholder="Email" required>
+        </div>
+        <div>
+          <input class="rounded-xl m-2 w-buttonr h-12 text-3xl outline-blue-500 outline-8 text-center" v-model="username" placeholder="Username" required>
+        </div>
+        <div>
+          <input class="rounded-xl m-2 w-buttonr h-12 text-3xl outline-blue-500 outline-8 text-center" v-model="password" placeholder="Password" type="password" required>
+        </div>
+        <button type="submit" class="rounded-xl m-2 bg-darker-blue font-rubik text-4xl text-center text-white w-buttonr h-12  hover:bg-darkerer-blue">Submit</button>
+      </form>
+      <button class="text-white hover:text-blue-600 m-2" @click="toggle(button)">{{ button }}</button>
+    </div>
+  </div>
 </template>
