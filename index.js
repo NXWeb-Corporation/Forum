@@ -3,24 +3,36 @@ import bodyParser from "body-parser";
 import { MongoClient } from "mongodb";
 import bcrypt from "bcrypt";
 import evalidator from "email-validator";
+import { v4 as uuidv4 } from 'uuid';
 
 let client = null
 //database
 if (process.argv[2] == "Docker") {
   client = new MongoClient('mongodb://mongodb:27017');
-  console.log("docker")
 }
 else {
   client = new MongoClient('mongodb://127.0.0.1:27017');
-  console.log("local")
 }
 
 const port = 8080
 const app = express();
 const saltRounds = 8;
 
-const db = client.db("forum");
-const account = db.collection("account");
+const db1 = client.db("forum-account");
+const account = db1.collection("account");
+const session = db1.collection("session");
+
+const db2 = client.db("forum-post");
+
+async function start() {
+  try {
+      await client.connect();
+      await session.createIndex({ createdAt: 1 }, { expireAfterSeconds: 7200 });
+      console.log('Connected to MongoDB');
+  } catch (error) {
+      console.error('Error connecting to MongoDB:', error);
+  }
+}
 
 async function verifynone(email, user) {
   if (!evalidator.validate(email))
@@ -45,6 +57,8 @@ async function getaccount(user) {
   else return "none"
 };
 
+start()
+
 app.use(express.static('dist'));
 app.use(bodyParser.json());
 
@@ -53,10 +67,13 @@ app.post('/login', async function (req, res) {
   if (acc === "none")
     res.send("Invalid username or password")
   else {
-    if(await bcrypt.compare(req.body.password._value, acc.password))
-      res.send("succesful")
+    if(await bcrypt.compare(req.body.password._value, acc.password)){
+      let uuid = uuidv4()
+      res.send("successful" + uuid)
+      session.insertOne({id: acc._id, uuid: uuid })
+    }
     else res.send("Invalid username or password")
-  }
+  };
 });
 
 app.post('/signup', async function (req, res) {
@@ -70,11 +87,16 @@ app.post('/signup', async function (req, res) {
   else {
     try {
       await insertaccount(req.body.email._value, req.body.username._value, req.body.password._value);
-      res.send("Account Created");
+      res.send("created");
     } catch (error) {
       res.status(500).send("Internal server error");
-    }
-  }
+    };
+  };
+});
+
+app.post('/newpost', async function (req, res) {
+  console.log(req.body.title._value)
+  console.log(req.body.description._value)
 });
 
 app.get('*', function (req, res) {
