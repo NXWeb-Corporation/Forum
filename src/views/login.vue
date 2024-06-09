@@ -26,7 +26,7 @@ function toggle(idk) {
 }
 
 async function post() {
-  let response = await axios.post(`/${location}`, {
+  let response = await axios.post(`/api/${location}`, {
     email: email,
     username: username,
     password: password

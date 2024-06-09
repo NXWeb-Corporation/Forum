@@ -18,16 +18,18 @@ const port = 8080
 const app = express();
 const saltRounds = 8;
 
-const db1 = client.db("forum-account");
-const account = db1.collection("account");
-const session = db1.collection("session");
-
-const db2 = client.db("forum-post");
+const db = client.db("forum");
+const account = db.collection("account");
+const session = db.collection("session");
+const stuff = db.collection("stuff");
 
 async function start() {
   try {
       await client.connect();
       await session.createIndex({ createdAt: 1 }, { expireAfterSeconds: 7200 });
+      await account.createIndex({ email: 1 })
+      await account.createIndex({ username: 1 })
+      await stuff.createIndex({ id: 1 });
       console.log('Connected to MongoDB');
   } catch (error) {
       console.error('Error connecting to MongoDB:', error);
@@ -62,7 +64,7 @@ start()
 app.use(express.static('dist'));
 app.use(bodyParser.json());
 
-app.post('/login', async function (req, res) {
+app.post('/api/login', async function (req, res) {
   let acc = await getaccount(req.body.username._value);
   if (acc === "none")
     res.send("Invalid username or password")
@@ -76,7 +78,7 @@ app.post('/login', async function (req, res) {
   };
 });
 
-app.post('/signup', async function (req, res) {
+app.post('/api/signup', async function (req, res) {
   let verify = await verifynone(req.body.email._value, req.body.username._value);
   if (verify === "iemail")
     res.send("Invalid Email")
@@ -89,14 +91,32 @@ app.post('/signup', async function (req, res) {
       await insertaccount(req.body.email._value, req.body.username._value, req.body.password._value);
       res.send("created");
     } catch (error) {
-      res.status(500).send("Internal server error");
+      res.send("Internal server error");
     };
   };
 });
 
-app.post('/newpost', async function (req, res) {
-  console.log(req.body.title._value)
-  console.log(req.body.description._value)
+app.post('/api/newpost', async function (req, res) {
+  let ownerid = await session.findOne({uuid: req.body.session})
+  try {
+    await stuff.insertOne({title: req.body.title._value, description: req.body.description._value, owner: ownerid.id})
+    res.send("successful")
+  } catch (error) {
+    res.send("Internal server error");
+  };
+});
+
+app.post('/api/data', async function (req, res) {
+  console.log(req.body.id)
+});
+
+app.get('/api/data', async function (req,res) {
+  let idk = await stuff.find();
+  let json = {}
+  for await (let doc of idk){
+     json[doc.title] = doc;
+  }
+  res.json(json)
 });
 
 app.get('*', function (req, res) {
