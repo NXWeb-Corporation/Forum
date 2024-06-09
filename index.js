@@ -1,6 +1,6 @@
 import express from "express";
 import bodyParser from "body-parser";
-import { MongoClient } from "mongodb";
+import { MongoClient, ObjectId } from "mongodb";
 import bcrypt from "bcrypt";
 import evalidator from "email-validator";
 import { v4 as uuidv4 } from 'uuid';
@@ -21,18 +21,18 @@ const saltRounds = 8;
 const db = client.db("forum");
 const account = db.collection("account");
 const session = db.collection("session");
-const stuff = db.collection("stuff");
+const post = db.collection("post");
+const comments = db.collection("comment");
 
 async function start() {
   try {
-      await client.connect();
-      await session.createIndex({ createdAt: 1 }, { expireAfterSeconds: 7200 });
-      await account.createIndex({ email: 1 })
-      await account.createIndex({ username: 1 })
-      await stuff.createIndex({ id: 1 });
-      console.log('Connected to MongoDB');
+    await client.connect();
+    await session.createIndex({ createdAt: 1 }, { expireAfterSeconds: 7200 });
+    await account.createIndex({ email: 1 })
+    await account.createIndex({ username: 1 })
+    console.log('Connected to MongoDB');
   } catch (error) {
-      console.error('Error connecting to MongoDB:', error);
+    console.error('Error connecting to MongoDB:', error);
   }
 }
 
@@ -69,10 +69,10 @@ app.post('/api/login', async function (req, res) {
   if (acc === "none")
     res.send("Invalid username or password")
   else {
-    if(await bcrypt.compare(req.body.password._value, acc.password)){
+    if (await bcrypt.compare(req.body.password._value, acc.password)) {
       let uuid = uuidv4()
       res.send("successful" + uuid)
-      session.insertOne({id: acc._id, uuid: uuid })
+      session.insertOne({ id: acc._id, uuid: uuid })
     }
     else res.send("Invalid username or password")
   };
@@ -97,26 +97,56 @@ app.post('/api/signup', async function (req, res) {
 });
 
 app.post('/api/newpost', async function (req, res) {
-  let ownerid = await session.findOne({uuid: req.body.session})
-  try {
-    await stuff.insertOne({title: req.body.title._value, description: req.body.description._value, owner: ownerid.id})
-    res.send("successful")
-  } catch (error) {
-    res.send("Internal server error");
-  };
+  let ownerid = await session.findOne({ uuid: req.body.session });
+  if (ownerid) {
+    let owner = await account.findOne({ _id: ownerid.id });
+    try {
+      await post.insertOne({ title: req.body.title._value, description: req.body.description._value, owner: owner.username });
+      res.send("successful");
+    } catch (error) {
+      res.send("Internal server error");
+    };
+  } else res.send("Login again")
 });
 
-app.post('/api/data', async function (req, res) {
-  console.log(req.body.id)
+app.post('/api/newcomment/:id', async function (req, res) {
+  let ownerid = await session.findOne({ uuid: req.body.session });
+  if (ownerid) {
+    let owner = await account.findOne({ _id: ownerid.id });
+    try {
+      await comments.insertOne({ stuff: req.body.stuff._value, owner: owner.username, id: new ObjectId(req.params.id) });
+      res.send("successful");
+    } catch (error) {
+      res.send("Internal server error");
+    };
+  } else res.send("Login again")
 });
 
-app.get('/api/data', async function (req,res) {
-  let idk = await stuff.find();
+app.get('/api/data/comment/:id', async function (req, res) {
+  let main = await post.findOne({ _id: new ObjectId(req.params.id) });
+  let idk = comments.find({ id: new ObjectId(req.params.id) });
   let json = {}
-  for await (let doc of idk){
-     json[doc.title] = doc;
+  try {
+    for await (let doc of idk) {
+      json[doc._id] = doc;
+    }
+    res.json({ main, json })
+  } catch (error) {
+    res.status(500);
   }
-  res.json(json)
+});
+
+app.get('/api/data/post', async function (req, res) {
+  let idk = post.find();
+  let json = {}
+  try {
+    for await (let doc of idk) {
+      json[doc._id] = doc;
+    }
+    res.json(json)
+  } catch (error) {
+    res.status(500)
+  }
 });
 
 app.get('*', function (req, res) {
