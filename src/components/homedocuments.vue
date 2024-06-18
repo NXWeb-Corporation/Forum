@@ -18,7 +18,8 @@ function go(id){
 onMounted(getstuff);
 </script>
 <template>
-  <div v-for="item in items" class="bg-nav-bg m-4 p-2 rounded-lg">
-    <h1 @click="go(item._id)" class="text-white">{{ item.owner + ": " + item.title }}</h1>
+  <div v-for="item in items" @click="go(item._id)" class="bg-nav-bg m-4 p-2 rounded-lg text-white w-3/4">
+    <h3>{{ `${item.owner}:` }}</h3>
+    <h1>{{ item.title }}</h1>
   </div>
 </template>

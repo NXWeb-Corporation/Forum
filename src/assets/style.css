@@ -7,3 +7,20 @@
 body{
   background-color: rgb(20, 22, 24);
 }
+@layer base {
+  h1 {
+    @apply text-3xl;
+  }
+  h2 {
+    @apply text-2xl;
+  }
+  h3 {
+    @apply text-xl;
+  }
+  code {
+    @apply bg-gray-800 p-0.5 rounded-lg;
+  }
+  pre {
+    @apply bg-gray-800 p-0.5 rounded-lg w-fit;
+  }
+}
