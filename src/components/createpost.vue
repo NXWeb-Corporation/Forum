@@ -24,7 +24,7 @@ async function post() {
 <template>
   <div class="h-half flex justify-center items-center flex-col m-24">
     <div class="bg-nav-bg p-2 py-0 rounded-xl">
-      <div class="text-5xl m-6 text-darker-blue text-center font-poppins">Create a post</div>
+      <h1 class="text-5xl m-6 text-darker-blue text-center font-poppins">Create a post</h1>
       <h2 class="text-red-600 m-2 text-center" v-if="respond">{{ respond }}</h2>
       <form @submit.prevent="post">
         <div>
