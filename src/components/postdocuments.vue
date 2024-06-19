@@ -1,14 +1,15 @@
 <script setup>
 import { onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
 import axios from 'axios';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 
+const route = useRoute();
 const items = ref({main: {title: "", description: "", owner: ""}});
 
 async function get(){
-  let id = location.pathname.replace("/", '').replace("post", '')
-  let response = await axios.get(`/api/data/comment${id}`)
+  let response = await axios.get(`/api/data/comment/${route.params.id}`)
   items.value = response.data;
 };
 onMounted(get)

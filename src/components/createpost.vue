@@ -17,8 +17,8 @@ async function post() {
     })
     if (response.data.includes("successful")) {
       emits("successful");
-    } else respond.value = response.data
-  } else respond.value = "Please login"
+    } else respond.value = response.data;
+  } else respond.value = "Please login";
 }
 </script>
 <template>

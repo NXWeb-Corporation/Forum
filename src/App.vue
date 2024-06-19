@@ -1,5 +1,11 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
+import { RouterLink, RouterView, useRouter } from 'vue-router';
+const router = useRouter();
+let urlParams = new URLSearchParams(window.location.search);
+if(urlParams.get("redirect")){
+  router.push({ path: urlParams.get("redirect") });
+}
+
 </script>
 
 <template>

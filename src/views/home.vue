@@ -1,17 +1,17 @@
 <script setup>
 import { ref } from 'vue';
 import createpost from '../components/createpost.vue';
-import stuff from '../components/homedocuments.vue'
+import stuff from '../components/homedocuments.vue';
 
-const createnew = ref(false)
-const componentkey = ref(0)
+const createnew = ref(false);
+const componentkey = ref(0);
 
 function newpost(){
-  createnew.value = true 
+  createnew.value = true;
 }
 function exit(){
-  createnew.value = false
-  componentkey.value += 1
+  createnew.value = false;
+  componentkey.value += 1;
 }
 </script>
 <template>

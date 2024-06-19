@@ -123,10 +123,10 @@ app.post('/api/newcomment/:id', async function (req, res) {
 });
 
 app.get('/api/data/comment/:id', async function (req, res) {
-  let main = await post.findOne({ _id: new ObjectId(req.params.id) });
-  let idk = comments.find({ id: new ObjectId(req.params.id) });
   let json = {}
   try {
+    let main = await post.findOne({ _id: new ObjectId(req.params.id) });
+    let idk = comments.find({ id: new ObjectId(req.params.id) });
     for await (let doc of idk) {
       json[doc._id] = doc;
     }
@@ -150,7 +150,7 @@ app.get('/api/data/post', async function (req, res) {
 });
 
 app.get('*', function (req, res) {
-  res.redirect("/")
+  res.redirect(`/?redirect=${req.url}`)
 });
 
 app.listen(port, () => {

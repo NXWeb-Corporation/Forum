@@ -1,23 +1,24 @@
 <script setup>
 import { ref } from 'vue';
+import { useRoute } from 'vue-router';
 import axios from 'axios';
 
+const route = useRoute();
 const stuff = ref('');
-const respond = ref(null)
+const respond = ref(null);
 const emits = defineEmits(['successful']);
 
 async function post() {
-  let session = window.sessionStorage.getItem("session")
+  let session = window.sessionStorage.getItem("session");
   if (session) {
-    let id = location.pathname.replace("/", '').replace("post", '')
-    let response = await axios.post(`/api/newcomment${id}`, {
+    let response = await axios.post(`/api/newcomment/${route.params.id}`, {
       stuff: stuff,
       session: session
     })
     if (response.data.includes("successful")) {
       emits("successful");
     } else respond.value = response.data;
-  } else respond.value = "Please login"
+  } else respond.value = "Please login";
 }
 </script>
 <template>
