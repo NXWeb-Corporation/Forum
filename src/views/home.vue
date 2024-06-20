@@ -18,6 +18,6 @@ function exit(){
   <div class="flex flex-row-reverse absolute end-0">
     <button class="text-black bg-blue-700 font-poppins rounded-xl w-36 h-12 m-10 mt-4" @click="newpost">New Post</button>
   </div>
-  <createpost v-if="createnew" @successful="exit"></createpost>
+  <createpost v-if="createnew" @successful="exit" class="absolute inset-x-2"></createpost>
   <stuff :key="componentkey"></stuff>
 </template>
