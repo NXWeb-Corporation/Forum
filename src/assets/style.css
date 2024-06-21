@@ -23,4 +23,7 @@ body{
   pre {
     @apply bg-gray-800 p-0.5 rounded-lg w-fit;
   }
+  a {
+    @apply underline text-darkerer-blue
+  }
 }

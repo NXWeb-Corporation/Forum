@@ -114,7 +114,7 @@ app.post('/api/newcomment/:id', async function (req, res) {
   if (ownerid) {
     let owner = await account.findOne({ _id: ownerid.id });
     try {
-      await comments.insertOne({ stuff: req.body.stuff._value, owner: owner.username, id: new ObjectId(req.params.id) });
+      await comments.insertOne({ stuff: req.body.stuff._value, owner: owner.username, parentid: new ObjectId(req.params.id) });
       res.send("successful");
     } catch (error) {
       res.send("Internal server error");
@@ -126,7 +126,7 @@ app.get('/api/data/comment/:id', async function (req, res) {
   let json = {}
   try {
     let main = await post.findOne({ _id: new ObjectId(req.params.id) });
-    let idk = comments.find({ id: new ObjectId(req.params.id) });
+    let idk = comments.find({ parentid: new ObjectId(req.params.id) });
     for await (let doc of idk) {
       json[doc._id] = doc;
     }
