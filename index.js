@@ -22,7 +22,6 @@ const db = client.db("forum");
 const account = db.collection("account");
 const session = db.collection("session");
 const post = db.collection("post");
-const comments = db.collection("comment");
 
 async function start() {
   try {
@@ -91,6 +90,7 @@ app.post('/api/signup', async function (req, res) {
       await insertaccount(req.body.email._value, req.body.username._value, req.body.password._value);
       res.send("created");
     } catch (error) {
+      console.log(error)
       res.send("Internal server error");
     };
   };
@@ -101,9 +101,10 @@ app.post('/api/newpost', async function (req, res) {
   if (ownerid) {
     let owner = await account.findOne({ _id: ownerid.id });
     try {
-      await post.insertOne({ title: req.body.title._value, description: req.body.description._value, owner: owner.username });
+      await post.insertOne({ title: req.body.title._value, description: req.body.description._value, owner: owner.username, comments: [] });
       res.send("successful");
     } catch (error) {
+      console.log(error)
       res.send("Internal server error");
     };
   } else res.send("Login again")
@@ -114,38 +115,38 @@ app.post('/api/newcomment/:id', async function (req, res) {
   if (ownerid) {
     let owner = await account.findOne({ _id: ownerid.id });
     try {
-      await comments.insertOne({ stuff: req.body.stuff._value, owner: owner.username, parentid: new ObjectId(req.params.id) });
+      await post.updateOne(
+        { _id: new ObjectId(req.params.id) },
+        { $push: { comments: {stuff: req.body.stuff._value, owner: owner.username, _id: new ObjectId() }}});
       res.send("successful");
     } catch (error) {
+      console.log(error)
       res.send("Internal server error");
     };
   } else res.send("Login again")
 });
 
 app.get('/api/data/comment/:id', async function (req, res) {
-  let json = {}
   try {
     let main = await post.findOne({ _id: new ObjectId(req.params.id) });
-    let idk = comments.find({ parentid: new ObjectId(req.params.id) });
-    for await (let doc of idk) {
-      json[doc._id] = doc;
-    }
-    res.json({ main, json })
+    res.json(main)
   } catch (error) {
+    console.log(error)
     res.status(500);
   }
 });
 
 app.get('/api/data/post', async function (req, res) {
-  let idk = post.find();
-  let json = {}
+  let idk = post.find({}, { projection: { _id: 1, title: 1, owner: 1 } });
+  let json = {};
   try {
     for await (let doc of idk) {
-      json[doc._id] = doc;
+      json[doc._id] = { _id: doc._id, title: doc.title, owner: doc.owner };
     }
-    res.json(json)
+    res.json(json);
   } catch (error) {
-    res.status(500)
+    console.log(error);
+    res.status(500).send("Internal Server Error");
   }
 });
 
