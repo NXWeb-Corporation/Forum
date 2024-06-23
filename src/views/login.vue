@@ -36,7 +36,7 @@ async function post() {
     window.sessionStorage.setItem("session", uuid);
     router.push({ path: '/' });
   } else if (response.data.includes("created")) {
-    location = "login";
+    select = "login";
     post();
   } else respond.value = response.data
 };
