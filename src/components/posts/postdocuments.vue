@@ -11,18 +11,17 @@ const show = ref(null);
 
 function notdone(){
   alert("Not Done")
-}
+};
 function scroll(id) {
   document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
 };
 function showthing(id) {
   show.value = id;
-}
+};
 
 async function get() {
   let response = await axios.get(`/api/data/comment/${route.params.id}`)
   items.value = response.data;
-  
 };
 onMounted(get)
 </script>
@@ -37,7 +36,7 @@ onMounted(get)
     <div class="whitespace-pre" v-html="DOMPurify.sanitize(marked.parse(items.description))"></div>
     <span v-if="show == items._id" class="absolute right-5 bottom-1">
       <button @click="notdone" class="p-1"><span class="hover:text-darker-blue">Reply</span></button>
-      <button @click="notdone" class="p-1"><span class="hover:text-darker-blue">Edit</span></button>
+      <button v-if="user == items.owner" @click="notdone" class="p-1"><span class="hover:text-darker-blue">Edit</span></button>
     </span>
   </div>
   <!-- other stuff -->
@@ -47,7 +46,7 @@ onMounted(get)
     <div class="whitespace-pre" v-html="DOMPurify.sanitize(marked.parse(item.stuff))"></div>
     <span v-if="show == item._id" class="absolute right-5 bottom-1">
       <button @click="notdone" class="p-1"><span class="hover:text-darker-blue">Reply</span></button>
-      <button @click="notdone" class="p-1"><span class="hover:text-darker-blue">Edit</span></button>
+      <button v-if="user == item.owner" @click="notdone" class="p-1"><span class="hover:text-darker-blue">Edit</span></button>
     </span>
   </div>
 </template>

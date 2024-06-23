@@ -7,34 +7,34 @@ const router = useRouter();
 const email = ref('');
 const username = ref('');
 const password = ref('');
-const header = ref("Login")
-const button = ref("Sign Up")
-const respond = ref(null)
-var location = "login"
+const header = ref("Login");
+const button = ref("Sign Up");
+const respond = ref(null);
+var select = "login"
 
 function toggle(idk) {
   if (idk === "Sign Up") {
     header.value = "Sign Up"
     button.value = "Login"
-    location = "signup"
+    select = "signup"
   }
   else {
     header.value = "Login"
     button.value = "Sign Up"
-    location = "login"
+    select = "login"
   }
 }
 
 async function post() {
-  let response = await axios.post(`/api/${location}`, {
+  let response = await axios.post(`/api/${select}`, {
     email: email,
     username: username,
     password: password
   })
   if (response.data.includes("successful")) {
-    router.push({ path: '/' });
     let uuid = response.data.replace("successful", '');
     window.sessionStorage.setItem("session", uuid);
+    router.push({ path: '/' });
   } else if (response.data.includes("created")) {
     location = "login";
     post();

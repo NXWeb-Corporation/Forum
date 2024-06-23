@@ -98,16 +98,16 @@ app.post('/api/signup', async function (req, res) {
 
 app.post('/api/newpost', async function (req, res) {
   let ownerid = await session.findOne({ uuid: req.body.session });
-  if (ownerid) {
-    let owner = await account.findOne({ _id: ownerid.id });
-    try {
+  try {
+    if (ownerid) {
+      let owner = await account.findOne({ _id: ownerid.id });
       await post.insertOne({ title: req.body.title._value, description: req.body.description._value, owner: owner.username, comments: [] });
       res.send("successful");
-    } catch (error) {
-      console.log(error)
-      res.send("Internal server error");
-    };
-  } else res.send("Login again")
+    } else res.send("Login again");
+  } catch (error) {
+    console.log(error);
+    res.send("Internal server error");
+  }
 });
 
 app.post('/api/newcomment/:id', async function (req, res) {
@@ -117,7 +117,7 @@ app.post('/api/newcomment/:id', async function (req, res) {
     try {
       await post.updateOne(
         { _id: new ObjectId(req.params.id) },
-        { $push: { comments: {stuff: req.body.stuff._value, owner: owner.username, _id: new ObjectId() }}});
+        { $push: { comments: { stuff: req.body.stuff._value, owner: owner.username, _id: new ObjectId() } } });
       res.send("successful");
     } catch (error) {
       console.log(error)
@@ -144,6 +144,19 @@ app.get('/api/data/post', async function (req, res) {
       json[doc._id] = { _id: doc._id, title: doc.title, owner: doc.owner };
     }
     res.json(json);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+app.get('/api/data/user/:uuid', async function (req, res) {
+  let ownerid = await session.findOne({ uuid: req.params.uuid });
+  try {
+    if (ownerid) {
+      let owner = await account.findOne({ _id: ownerid.id }, { projection: { username: 1, _id: 0 } });
+      res.send(owner);
+    } else res.send(null);
   } catch (error) {
     console.log(error);
     res.status(500).send("Internal Server Error");
