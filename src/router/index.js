@@ -16,7 +16,7 @@ const router = createRouter({
       component: login
     },
     {
-      path: '/profile',
+      path: '/profile/:username',
       component: profile
     },
     { 

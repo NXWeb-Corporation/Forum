@@ -2,8 +2,6 @@
 import { onMounted, ref, watch } from 'vue';
 import { RouterLink, RouterView, useRouter, useRoute } from 'vue-router';
 import axios from 'axios';
-import { use } from 'marked';
-
 
 const router = useRouter();
 const route = useRoute();
@@ -16,12 +14,15 @@ if (urlParams.get("redirect")) {
 }
 
 async function check() {
-  let uuid = window.sessionStorage.getItem("session");
-  if (uuid) {
-    let response = await axios.get(`/api/data/user/${uuid}`);
+  let session = window.sessionStorage.getItem("session");
+  if (session) {
+    let response = await axios.post("/api/user", {
+      session: session
+    });
     user.value = response.data;
   } else user.value = null;
 }
+
 onMounted(() => {
   check();
   watch(() => route.path, () => {
@@ -41,7 +42,7 @@ onMounted(() => {
           to="/login">Login
         </RouterLink>
         <RouterLink v-if="user" class="font-poppins text-3xl text-white hover:text-darker-blue no-underline"
-          to="/profile"> {{ user.username }}
+          :to="`/profile/${user.username}`"> {{ user.username }}
         </RouterLink>
       </div>
     </div>
