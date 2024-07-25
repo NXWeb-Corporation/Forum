@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue';
-import postdocuments from '../components/posts/postdocuments.vue';
-import createcomment from '../components/posts/createcomment.vue';
+import postdocuments from '@/components/posts/documents.vue';
+import createcomment from '@/components/posts/createcomment.vue';
 
 const componentkey = ref(0);
 

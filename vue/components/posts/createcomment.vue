@@ -9,10 +9,10 @@ const respond = ref(null);
 const emits = defineEmits(['successful']);
 
 async function post() {
-  let session = window.sessionStorage.getItem("session");
+  let session = localStorage.getItem("session");
   if (session) {
     let response = await axios.post(`/api/newcomment/${route.params.id}`, {
-      stuff: stuff,
+      stuff: stuff.value,
       session: session
     })
     if (response.data.includes("successful")) {

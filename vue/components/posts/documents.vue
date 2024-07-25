@@ -1,11 +1,10 @@
 <script setup>
 import { onMounted, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute, RouterLink } from 'vue-router';
 import axios from 'axios';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 
-const router = useRouter();
 const route = useRoute();
 const items = ref({ title: "", description: "", owner: "" });
 const show = ref(null);
@@ -19,9 +18,6 @@ function scroll(id) {
 };
 function showthing(id) {
   show.value = id;
-};
-function profile(user) {
-  router.push(`/profile/${user}`);
 };
 
 async function get() {
@@ -40,8 +36,8 @@ onMounted(get)
   </div>
   <div @mouseenter="showthing(items._id)" @mouseleave="showthing(null)"
     class="bg-nav-bg p-4 rounded-lg m-2 text-white overflow-auto relative">
-    <h2 @click="profile(items.owner)" class="hover:cursor-pointer">{{ `${items.owner}:` }}</h2>
-    <div class="whitespace-pre" v-html="DOMPurify.sanitize(marked.parse(items.description))"></div>
+    <RouterLink :to="`/profile/${items.owner}`" class="hover:cursor-pointer text-2xl text-white no-underline">{{ `${items.owner}:` }}</RouterLink>
+    <div v-html="DOMPurify.sanitize(marked.parse(items.description))"></div>
     <span v-if="show == items._id" class="absolute right-5 bottom-1">
       <button @click="notdone" class="p-1"><span class="hover:text-darker-blue">Reply</span></button>
       <button v-if="user == items.owner" @click="notdone" class="p-1"><span
@@ -51,7 +47,7 @@ onMounted(get)
   <!-- other stuff -->
   <div v-for="item in items.comments" :id="item._id" @mouseenter="showthing(item._id)" @mouseleave="showthing(null)"
     class="bg-nav-bg p-4 rounded-lg m-2 text-white overflow-auto relative">
-    <h2 @click="profile(item.owner)" class="hover:cursor-pointer">{{ `${item.owner}:` }}</h2>
+    <RouterLink :to="`/profile/${item.owner}`" class="hover:cursor-pointer text-2xl text-white no-underline">{{ `${item.owner}:` }}</RouterLink>
     <div class="whitespace-pre" v-html="DOMPurify.sanitize(marked.parse(item.stuff))"></div>
     <span v-if="show == item._id" class="absolute right-5 bottom-1">
       <button @click="notdone" class="p-1"><span class="hover:text-darker-blue">Reply</span></button>
