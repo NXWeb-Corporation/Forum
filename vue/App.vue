@@ -1,16 +1,10 @@
 <script setup>
 import { onMounted, watch } from 'vue';
-import { RouterLink, RouterView, useRouter, useRoute } from 'vue-router';
+import { RouterLink, RouterView, useRoute } from 'vue-router';
 import axios from 'axios';
 import { store } from '@/assets/store';
 
-const router = useRouter();
 const route = useRoute();
-const urlParams = new URLSearchParams(window.location.search);
-
-if (urlParams.get("redirect")) {
-  router.push({ path: urlParams.get("redirect") });
-}
 
 async function check() {
   let session = localStorage.getItem("session");

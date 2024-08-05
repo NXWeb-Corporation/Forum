@@ -3,6 +3,8 @@ import bodyParser from "body-parser";
 import { ObjectId } from "mongodb";
 import bcrypt from "bcrypt";
 import { v4 as uuidv4 } from 'uuid';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 import { account, session, post } from "./src/mongo.js";
 import { verifynone, insertaccount, getaccount } from "./src/functions.js";
@@ -140,8 +142,11 @@ app.get('/api/data/post', async function (req, res) {
   }
 });
 
-app.get('*', function (req, res) {
-  res.redirect(`/?redirect=${req.url}`)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+app.get('*', (req, res) => {
+  res.sendFile(path.resolve(__dirname, 'dist', 'index.html'));
 });
 
 app.listen(port, () => {
