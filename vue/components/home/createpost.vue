@@ -7,7 +7,7 @@ const stuff = reactive({
   description: '',
   response: null
 });
-const emits = defineEmits(['successful']);
+const emits = defineEmits(['successful', 'exit']);
 
 async function post() {
   let session = localStorage.getItem("session")
@@ -24,8 +24,8 @@ async function post() {
 }
 </script>
 <template>
-  <div class="h-half flex justify-center items-center flex-col m-24">
-    <div class="bg-nav-bg p-2 py-0 rounded-xl">
+  <div @click="emits('exit')" class="flex justify-center items-center fixed z-10 inset-0 bg-black bg-opacity-40 flex-col">
+    <div @click.stop class="bg-nav-bg p-2 py-0 rounded-xl">
       <h1 class="text-5xl m-6 text-darker-blue text-center font-poppins">Create a post</h1>
       <h2 class="text-red-600 m-2 text-center" v-if="stuff.response">{{ stuff.response }}</h2>
       <form @submit.prevent="post">
