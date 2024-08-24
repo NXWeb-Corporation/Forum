@@ -46,6 +46,8 @@ if (process.argv.includes("--dev")) {
   })
   app.use(vite.middlewares)
   console.log("Vite middleware")
+} else {
+  app.use(express.static('dist'));
 }
 
 const __dirname = url.fileURLToPath(new URL("./", import.meta.url))
