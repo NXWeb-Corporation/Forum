@@ -4,8 +4,8 @@ import path from 'node:path';
 import url from "node:url"
 import { createServer as createViteServer } from 'vite'
 
-import { editprofile, login, newcomment, newpost, signup, user } from "./src/api/post.js";
-import { username, comment, posts } from "./src/api/get.js";
+import { editprofile, login, newcomment, newpost, signup, user } from "./serverjs/api/post.js";
+import { username, comment, posts } from "./serverjs/api/get.js";
 
 const port = 8080
 const app = express();
