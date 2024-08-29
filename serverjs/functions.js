@@ -1,4 +1,4 @@
-import { account, session } from "./mongo.js";
+import { account } from "./mongo.js";
 import evalidator from "email-validator";
 import bcrypt from "bcrypt";
 import { sanitize } from "./mongo-sanitize.js";
@@ -35,8 +35,4 @@ export async function getaccount(user) {
     : { username: new RegExp(`^${user}$`, 'i') };
   let accountData = await account.findOne(sanitize(query));
   return accountData || "none";
-}
-
-export async function getsession(uuid) {
-  return await session.findOne({ uuid: sanitize(uuid) });
 }

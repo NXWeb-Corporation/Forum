@@ -1,6 +1,7 @@
 <script setup>
 import { reactive } from 'vue';
 import axios from 'axios';
+import { store } from '@/assets/store.js';
 
 const stuff = reactive({
   title: '',
@@ -10,12 +11,10 @@ const stuff = reactive({
 const emits = defineEmits(['successful', 'exit']);
 
 async function post() {
-  let session = localStorage.getItem("session")
-  if (session) {
+  if (store.username) {
     let response = await axios.post("/api/newpost", {
       title: stuff.title,
       description: stuff.description,
-      session: session
     })
     if (response.data.includes("successful")) {
       emits("successful");

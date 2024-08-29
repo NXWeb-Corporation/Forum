@@ -30,12 +30,7 @@ async function post() {
     password: stuff.password
   })
   if (response.data.includes("successful")) {
-    let uuid = response.data.replace("successful", '');
-    localStorage.setItem("session", uuid);
     router.push({ path: '/' });
-  } else if (response.data.includes("created")) {
-    select = "login";
-    post();
   } else stuff.respond = response.data
 };
 </script>

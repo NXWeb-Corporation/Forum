@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import { useRoute } from 'vue-router';
 import axios from 'axios';
+import { store } from '@/assets/store.js';
 
 const route = useRoute();
 const stuff = ref('');
@@ -9,11 +10,9 @@ const respond = ref(null);
 const emits = defineEmits(['successful']);
 
 async function post() {
-  let session = localStorage.getItem("session");
-  if (session) {
+  if (store.username) {
     let response = await axios.post(`/api/newcomment/${route.params.id}`, {
       stuff: stuff.value,
-      session: session
     })
     if (response.data.includes("successful")) {
       emits("successful");

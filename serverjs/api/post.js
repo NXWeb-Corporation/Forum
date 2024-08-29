@@ -1,20 +1,19 @@
-import { ObjectId } from "mongodb";
+import { ObjectId } from 'mongodb';
 import bcrypt from "bcrypt";
-import { v4 as uuidv4 } from 'uuid';
-import { account, session, post } from "../mongo.js";
-import { verifynone, insertaccount, getaccount, getsession } from "../functions.js";
+import { account, post } from "../mongo.js";
+import { verifynone, insertaccount, getaccount } from "../functions.js";
 import { sanitize } from "../mongo-sanitize.js";
 
 export async function login(req, res) {
   try {
-    let acc = await getaccount(req.body.username);
+    const acc = await getaccount(req.body.username);
     if (acc === "none")
       res.send("Invalid Username or Password")
     else {
       if (await bcrypt.compare(req.body.password, acc.password)) {
-        let uuid = uuidv4()
-        res.send("successful" + uuid)
-        session.insertOne({ id: acc._id, uuid: uuid })
+        req.session.username = acc.username;
+        req.session.userid = acc._id;
+        res.send("successful");
       }
       else res.send("Invalid Username or Password")
     };
@@ -35,7 +34,10 @@ export async function signup(req, res) {
       res.send("Username Taken");
     else {
       await insertaccount(req.body.email, req.body.username, req.body.password);
-      res.send("created");
+      const acc = await getaccount(req.body.username);
+      req.session.username = acc.username;
+      req.session.userid = acc._id;
+      res.send("successful");
     };
   } catch (error) {
     console.warn(error);
@@ -45,17 +47,15 @@ export async function signup(req, res) {
 
 export async function newpost(req, res) {
   try {
-    let ownerid = await getsession(req.body.session);
-    if (ownerid) {
-      let owner = await account.findOne({ _id: ownerid.id });
+    if (req.session.username) {
       await post.insertOne({
         title: sanitize(req.body.title),
         description: sanitize(req.body.description),
-        owner: sanitize(owner.username),
+        owner: sanitize(req.session.username),
         comments: []
       });
       res.send("successful");
-    } else res.send("Login again");
+    } else res.send("Please login");
   } catch (error) {
     console.warn(error);
     res.status(500).send("Internal Server Error");
@@ -64,29 +64,14 @@ export async function newpost(req, res) {
 
 export async function newcomment(req, res) {
   try {
-    const ownerid = await getsession(req.body.session);
-    if (ownerid) {
-      let owner = await account.findOne({ _id: ownerid.id });
+    if (req.session.username) {
       await post.updateOne(
-        { _id: new ObjectId(sanitize(req.params.id)) },
+        { _id: new ObjectId(String(sanitize(req.params.id))) },
         {
-          $push: { comments: { stuff: sanitize(req.body.stuff), owner: sanitize(owner.username), _id: new ObjectId() } }
+          $push: { comments: { stuff: sanitize(req.body.stuff), owner: sanitize(req.session.username), _id: new ObjectId() } }
         });
       res.send("successful");
-    } else res.send("Login again")
-  } catch (error) {
-    console.warn(error);
-    res.status(500).send("Internal Server Error");
-  }
-}
-
-export async function user(req, res) {
-  try {
-    const ownerid = await getsession(req.body.session);
-    if (ownerid) {
-      let owner = await account.findOne({ _id: ownerid.id });
-      res.send(owner.username);
-    } else res.send(null);
+    } else res.send("Please login")
   } catch (error) {
     console.warn(error);
     res.status(500).send("Internal Server Error");
@@ -95,8 +80,7 @@ export async function user(req, res) {
 
 export async function editprofile(req, res) {
   try {
-    const userid = await getsession(req.body.session);
-    await account.updateOne({ _id: userid.id }, { $set: { description: sanitize(req.body.description) } });
+    await account.updateOne({ _id: new ObjectId(String(req.session.userid)) }, { $set: { description: sanitize(req.body.description) } });
     res.send("successful");
   } catch (error) {
     console.warn(error);

@@ -4,7 +4,7 @@ import { sanitize } from "../mongo-sanitize.js";
 
 export async function username(req, res) {
   try {
-    let profile = await account.findOne({ username: sanitize(req.params.username) });
+    let profile = await account.findOne({ username: sanitize(new RegExp(`^${req.params.username}$`, 'i')) });
     if (profile) {
       res.send({ username: profile.username, description: profile.description, time: profile.time });
     } else res.send("No account found");
@@ -16,7 +16,7 @@ export async function username(req, res) {
 
 export async function comment(req, res) {
   try {
-    let main = await post.findOne({ _id: new ObjectId(sanitize(req.params.id)) });
+    let main = await post.findOne({ _id: new ObjectId(String(sanitize(req.params.id))) });
     res.json(main)
   } catch (error) {
     console.warn(error);
@@ -32,6 +32,17 @@ export async function posts(req, res) {
       json[doc._id] = { _id: doc._id, title: doc.title, owner: doc.owner };
     }
     res.json(json);
+  } catch (error) {
+    console.warn(error);
+    res.status(500).send("Internal Server Error");
+  }
+}
+
+export async function user(req, res) {
+  try {
+    if (req.session.username) {
+      res.send(req.session.username);
+    } else res.send(null);
   } catch (error) {
     console.warn(error);
     res.status(500).send("Internal Server Error");

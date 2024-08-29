@@ -1,9 +1,9 @@
 import { MongoClient } from "mongodb";
+import MongoStore from 'connect-mongo';
 
 export async function start(client) {
   try {
     await client.connect();
-    await session.createIndex({ createdAt: 1 }, { expireAfterSeconds: 7200 });
     // await account.createIndex({ email: 1 })
     // await account.createIndex({ username: 1 })
     console.log('Connected to MongoDB');
@@ -24,5 +24,9 @@ start(client);
 
 const db = client.db("forum");
 export const account = db.collection("account");
-export const session = db.collection("session");
 export const post = db.collection("post");
+export const mongoStore = MongoStore.create({
+  client: client,
+  dbName: 'forum',
+  collectionName: 'sessions'
+})

@@ -8,7 +8,7 @@ import { store } from '@/assets/store.js';
 
 const route = useRoute();
 const stuff = reactive({
-  profile: { username: "", time: "", description: "", edit: false },
+  profile: { username: "", time: "", description: "" },
   error: null,
   editdesc: false,
   desc: "",
@@ -24,17 +24,13 @@ async function data() {
   }
 };
 async function post() {
-  let session = localStorage.getItem("session");
-  if (session) {
-    let response = await axios.post('/api/profile/edit', {
-      description: stuff.desc,
-      session: session
-    });
-    if (response.data.includes("successful")) {
-      editdescription()
-      data();
-    } else stuff.error = response.data;
-  } else stuff.error = "Please login";
+  let response = await axios.post('/api/profile/edit', {
+    description: stuff.desc,
+  });
+  if (response.data.includes("successful")) {
+    editdescription()
+    data();
+  } else stuff.error = response.data;
 };
 
 function editdescription() {
@@ -58,7 +54,8 @@ onMounted(() => {
   </div>
   <h1 v-if="stuff.error" class="text-red-700 text-5xl text-center pt-2">{{ stuff.error }}</h1>
   <div class="bg-nav-bg p-4 rounded-lg m-2 text-white overflow-auto relative">
-    <button v-if="stuff.profile.username === store.username" @click="editdescription" class="absolute right-5 top-1">{{ stuff.descbutton
+    <button v-if="stuff.profile.username === store.username" @click="editdescription" class="absolute right-5 top-1">{{
+      stuff.descbutton
       }}</button>
     <p v-if="stuff.desc === '' && !stuff.editdesc">No description yet</p>
     <div v-if="stuff.desc != '' && !stuff.editdesc"

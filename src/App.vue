@@ -7,13 +7,8 @@ import { store } from '@/assets/store';
 const route = useRoute();
 
 async function check() {
-  let session = localStorage.getItem("session");
-  if (session) {
-    let response = await axios.post("/api/user", {
-      session: session
-    });
-    store.username = response.data;
-  } else store.username = null;
+  let response = await axios.get("/api/user");
+  store.username = response.data;
 }
 
 onMounted(() => {
