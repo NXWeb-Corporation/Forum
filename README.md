@@ -25,7 +25,8 @@ node index.js
 ```
 ### Remember to create a .env file
 **If using https through a reverse proxy https in .env may need to be set to false**
-**Recommended way to genereate secret key**
+
+**Recommended way to genereate secret key:**
 ```
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
