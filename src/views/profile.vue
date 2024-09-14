@@ -28,6 +28,7 @@ async function post() {
     description: stuff.desc,
   });
   if (response.data.includes("successful")) {
+    stuff.error = null;
     editdescription()
     data();
   } else stuff.error = response.data;
@@ -50,10 +51,10 @@ onMounted(() => {
 <template>
   <div class="bg-blue-700 text-white text-center p-5">
     <h1 class="text-5xl">{{ stuff.profile.username }}</h1>
-    <h3>Joined {{ stuff.profile.time }}</h3>
+    <h3 class="pt-5">Joined {{ stuff.profile.time }}</h3>
   </div>
   <h1 v-if="stuff.error" class="text-red-700 text-5xl text-center pt-2">{{ stuff.error }}</h1>
-  <div class="bg-nav-bg p-4 rounded-lg m-2 text-white overflow-auto relative">
+  <div class="bg-nav-bg p-4 pt-6 rounded-lg m-2 text-white break-words relative">
     <button v-if="stuff.profile.username === store.username" @click="editdescription" class="absolute right-5 top-1">{{
       stuff.descbutton
       }}</button>
@@ -61,9 +62,10 @@ onMounted(() => {
     <div v-if="stuff.desc != '' && !stuff.editdesc"
       v-html="DOMPurify.sanitize(marked.parse(stuff.profile.description))"></div>
     <form v-if="stuff.editdesc" @submit.prevent="post">
-      <div>
+      <div class="relative">
         <textarea v-model="stuff.desc" placeholder="Description"
-          class="rounded-lg h-32 w-full text-lg outline-blue-500 outline-8 text-start mt-3 text-black"></textarea>
+          class="rounded-lg h-48 w-full text-lg outline-blue-500 outline-8 text-start mt-3 text-black resize-none pb-8" maxlength="2000"></textarea>
+          <span class="text-black absolute bottom-2 right-4">{{ stuff.desc.length }} / 2000</span>
       </div>
       <button
         class="rounded-xl bg-darker-blue font-rubik text-4xl text-center text-white h-12 w-full hover:bg-darkerer-blue">Submit</button>

@@ -45,15 +45,15 @@ async function post() {
       <form @submit.prevent="post">
         <div>
           <input class="rounded-xl m-2 w-buttonr h-12 text-3xl outline-blue-500 outline-8 text-center"
-            v-if="stuff.header === 'Sign Up'" v-model="stuff.email" placeholder="Email" required>
+            v-if="stuff.header === 'Sign Up'" v-model="stuff.email" placeholder="Email" required maxlength="1000">
         </div>
         <div>
           <input class="rounded-xl m-2 w-buttonr h-12 text-3xl outline-blue-500 outline-8 text-center"
-            v-model="stuff.username" placeholder="Username" required>
+            v-model="stuff.username" placeholder="Username" required maxlength="50">
         </div>
         <div>
           <input class="rounded-xl m-2 w-buttonr h-12 text-3xl outline-blue-500 outline-8 text-center"
-            v-model="stuff.password" placeholder="Password" type="password" required>
+            v-model="stuff.password" placeholder="Password" type="password" required maxlength="1000">
         </div>
         <button type="submit"
           class="rounded-xl m-2 bg-darker-blue font-rubik text-4xl text-center text-white w-buttonr h-12  hover:bg-darkerer-blue">Submit</button>

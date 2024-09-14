@@ -25,20 +25,25 @@ export async function login(req, res) {
 
 export async function signup(req, res) {
   try {
-    let verify = await verifynone(req.body.email, req.body.username);
-    if (verify === "iemail")
-      res.send("Invalid Email")
-    else if (verify === "email")
-      res.send("Email Taken");
-    else if (verify === "user")
-      res.send("Username Taken");
+    if (req.body.email.length > 1000) res.send("Email too long");
+    else if (req.body.username.length > 50) res.send("Username too long");
+    else if (req.body.password.length > 1000) res.send("Password too long");
     else {
-      await insertaccount(req.body.email, req.body.username, req.body.password);
-      const acc = await getaccount(req.body.username);
-      req.session.username = acc.username;
-      req.session.userid = acc._id;
-      res.send("successful");
-    };
+      let verify = await verifynone(req.body.email, req.body.username);
+      if (verify === "iemail")
+        res.send("Invalid Email")
+      else if (verify === "email")
+        res.send("Email Taken");
+      else if (verify === "user")
+        res.send("Username Taken");
+      else {
+        await insertaccount(req.body.email, req.body.username, req.body.password);
+        const acc = await getaccount(req.body.username);
+        req.session.username = acc.username;
+        req.session.userid = acc._id;
+        res.send("successful");
+      };
+    }
   } catch (error) {
     console.warn(error);
     res.status(500).send("Internal Server Error");
@@ -48,13 +53,16 @@ export async function signup(req, res) {
 export async function newpost(req, res) {
   try {
     if (req.session.username) {
-      await post.insertOne({
-        title: sanitize(req.body.title),
-        description: sanitize(req.body.description),
-        owner: sanitize(req.session.username),
-        comments: []
-      });
-      res.send("successful");
+      if (req.body.description.length > 2000) res.send("Comment too long");
+      else if (req.body.title.length > 50) res.send("Title too long");
+      else {
+        await post.insertOne({
+          title: sanitize(req.body.title),
+          comments: [{ stuff: sanitize(req.body.description), owner: sanitize(req.session.username), _id: new ObjectId() }],
+          owner: sanitize(req.session.username),
+        });
+        res.send("successful");
+      }
     } else res.send("Please login");
   } catch (error) {
     console.warn(error);
@@ -65,12 +73,15 @@ export async function newpost(req, res) {
 export async function newcomment(req, res) {
   try {
     if (req.session.username) {
-      await post.updateOne(
-        { _id: new ObjectId(String(sanitize(req.params.id))) },
-        {
-          $push: { comments: { stuff: sanitize(req.body.stuff), owner: sanitize(req.session.username), _id: new ObjectId() } }
-        });
-      res.send("successful");
+      if (req.body.stuff.length > 2000) res.send("Comment too long");
+      else {
+        await post.updateOne(
+          { _id: new ObjectId(String(sanitize(req.params.id))) },
+          {
+            $push: { comments: { stuff: sanitize(req.body.stuff), owner: sanitize(req.session.username), _id: new ObjectId() } }
+          });
+        res.send("successful");
+      }
     } else res.send("Please login")
   } catch (error) {
     console.warn(error);
@@ -80,8 +91,11 @@ export async function newcomment(req, res) {
 
 export async function editprofile(req, res) {
   try {
-    await account.updateOne({ _id: new ObjectId(String(req.session.userid)) }, { $set: { description: sanitize(req.body.description) } });
-    res.send("successful");
+    if (req.body.description.length > 2000) res.send("Description too long");
+    else {
+      await account.updateOne({ _id: new ObjectId(String(req.session.userid)) }, { $set: { description: sanitize(req.body.description) } });
+      res.send("successful");
+    }
   } catch (error) {
     console.warn(error);
     res.status(500).send("Internal Server Error");

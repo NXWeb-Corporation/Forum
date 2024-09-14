@@ -1,12 +1,13 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import { useRoute, RouterLink } from 'vue-router';
+import { store } from '@/assets/store';
 import axios from 'axios';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 
 const route = useRoute();
-const items = ref({ title: "", description: "", owner: "" });
+const items = ref({ title: "" });
 const show = ref(null);
 const error = ref(null);
 
@@ -34,25 +35,15 @@ onMounted(get)
     <h1 v-if="error" class="text-red-700 text-5xl">{{ error }}</h1>
     <h1 class="text-white text-5xl">{{ items.title }}</h1>
   </div>
-  <div @mouseenter="showthing(items._id)" @mouseleave="showthing(null)"
-    class="bg-nav-bg p-4 rounded-lg m-2 text-white overflow-auto relative">
-    <RouterLink :to="`/profile/${items.owner}`" class="hover:cursor-pointer text-2xl text-white no-underline">{{ `${items.owner}:` }}</RouterLink>
-    <div v-html="DOMPurify.sanitize(marked.parse(items.description))"></div>
-    <span v-if="show == items._id" class="absolute right-5 bottom-1">
-      <button @click="notdone" class="p-1"><span class="hover:text-darker-blue">Reply</span></button>
-      <button v-if="user == items.owner" @click="notdone" class="p-1"><span
-          class="hover:text-darker-blue">Edit</span></button>
-    </span>
-  </div>
-  <!-- other stuff -->
   <div v-for="item in items.comments" :id="item._id" @mouseenter="showthing(item._id)" @mouseleave="showthing(null)"
-    class="bg-nav-bg p-4 rounded-lg m-2 text-white overflow-auto relative">
-    <RouterLink :to="`/profile/${item.owner}`" class="hover:cursor-pointer text-2xl text-white no-underline">{{ `${item.owner}:` }}</RouterLink>
+    class="bg-nav-bg p-4 rounded-lg m-2 text-white overflow-auto break-words relative">
+    <RouterLink :to="`/profile/${item.owner}`" class="hover:cursor-pointer text-2xl text-white no-underline">{{
+      `${item.owner}:` }}</RouterLink>
     <div class="whitespace-pre" v-html="DOMPurify.sanitize(marked.parse(item.stuff))"></div>
     <span v-if="show == item._id" class="absolute right-5 bottom-1">
-      <button @click="notdone" class="p-1"><span class="hover:text-darker-blue">Reply</span></button>
-      <button v-if="user == item.owner" @click="notdone" class="p-1"><span
+      <button v-if="store.username == item.owner" @click="notdone" class="p-1"><span
           class="hover:text-darker-blue">Edit</span></button>
+      <button @click="notdone" class="p-1"><span class="hover:text-darker-blue">Reply</span></button>
     </span>
   </div>
 </template>

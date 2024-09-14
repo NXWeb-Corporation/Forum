@@ -16,7 +16,7 @@ export async function username(req, res) {
 
 export async function comment(req, res) {
   try {
-    let main = await post.findOne({ _id: new ObjectId(String(sanitize(req.params.id))) });
+    let main = await post.findOne({ _id: new ObjectId(String(sanitize(req.params.id))) }, { projection: { _id: 1, title: 1, comments: 1 } });
     res.json(main)
   } catch (error) {
     console.warn(error);
