@@ -79,7 +79,7 @@ router.post('/profile/edit', async (req, res, next) => {
 router.post('/logout', async (req, res, next) => {
   try {
     req.session.destroy();
-    res.send("done");
+    res.send("successful");
   } catch (error) {
     next(error);
   }
