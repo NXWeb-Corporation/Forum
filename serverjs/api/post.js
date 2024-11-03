@@ -2,7 +2,6 @@ import { ObjectId } from 'mongodb';
 import bcrypt from "bcrypt";
 import { account, post } from "../mongo.js";
 import { verifynone, insertaccount, getaccount } from "../functions.js";
-import { sanitize } from "../mongo-sanitize.js";
 
 export async function login(req, res) {
   try {
@@ -57,9 +56,9 @@ export async function newpost(req, res) {
       else if (req.body.title.length > 50) res.send("Title too long");
       else {
         await post.insertOne({
-          title: sanitize(req.body.title),
-          comments: [{ stuff: sanitize(req.body.description), owner: sanitize(req.session.username), _id: new ObjectId() }],
-          owner: sanitize(req.session.username),
+          title: req.body.title,
+          comments: [{ stuff: req.body.description, owner: req.session.username, _id: new ObjectId() }],
+          owner: req.session.username,
         });
         res.send("successful");
       }
@@ -76,9 +75,9 @@ export async function newcomment(req, res) {
       if (req.body.stuff.length > 2000) res.send("Comment too long");
       else {
         await post.updateOne(
-          { _id: new ObjectId(String(sanitize(req.params.id))) },
+          { _id: new ObjectId(String(req.params.id)) },
           {
-            $push: { comments: { stuff: sanitize(req.body.stuff), owner: sanitize(req.session.username), _id: new ObjectId() } }
+            $push: { comments: { stuff: req.body.stuff, owner: req.session.username, _id: new ObjectId() } }
           });
         res.send("successful");
       }
@@ -93,7 +92,7 @@ export async function editprofile(req, res) {
   try {
     if (req.body.description.length > 2000) res.send("Description too long");
     else {
-      await account.updateOne({ _id: new ObjectId(String(req.session.userid)) }, { $set: { description: sanitize(req.body.description) } });
+      await account.updateOne({ _id: new ObjectId(String(req.session.userid)) }, { $set: { description: req.body.description } });
       res.send("successful");
     }
   } catch (error) {

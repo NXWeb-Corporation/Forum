@@ -1,7 +1,6 @@
 import { account } from "./mongo.js";
 import evalidator from "email-validator";
 import bcrypt from "bcrypt";
-import { sanitize } from "./mongo-sanitize.js";
 
 const saltRounds = 8;
 
@@ -17,22 +16,22 @@ function time() {
 export async function verifynone(email, user) {
   if (!evalidator.validate(email))
     return "iemail"
-  else if (await account.findOne({ email: sanitize(new RegExp(`^${email}$`, 'i')) }))
+  else if (await account.findOne({ email: new RegExp(`^${email}$`, 'i') }))
     return "email"
-  else if (await account.findOne({ username: sanitize(new RegExp(`^${user}$`, 'i')) }))
+  else if (await account.findOne({ username: new RegExp(`^${user}$`, 'i') }))
     return "user"
   else return "none"
 };
 
 export async function insertaccount(email, user, passwd) {
   let hash = await bcrypt.hash(passwd, saltRounds);
-  await account.insertOne({ email: sanitize(email), username: sanitize(user), description: "", time: time(), password: hash })
+  await account.insertOne({ email: email, username: user, description: "", time: time(), password: hash })
 };
 
 export async function getaccount(user) {
   let query = evalidator.validate(user)
     ? { email: new RegExp(`^${user}$`, 'i') }
     : { username: new RegExp(`^${user}$`, 'i') };
-  let accountData = await account.findOne(sanitize(query));
+  let accountData = await account.findOne(query);
   return accountData || "none";
 }

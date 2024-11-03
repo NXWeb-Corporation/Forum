@@ -2,6 +2,7 @@ import express from "express";
 import path from 'node:path';
 import url from "node:url";
 import session from 'express-session';
+import ExpressMongoSanitize from "express-mongo-sanitize";
 import 'dotenv/config'
 import { createServer as createViteServer } from 'vite';
 
@@ -15,6 +16,8 @@ const isHttps = process.env.HTTPS === 'true';
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(
+  ExpressMongoSanitize());
 app.use(session({
   secret: process.env.SECRET_KEY,
   resave: false,
@@ -25,6 +28,11 @@ app.use(session({
     maxAge: 1000 * 60 * 60 * 24 // 1 day
   }
 }));
+
+app.post('/api/test', async function (req, res) {
+  console.log(req.body);
+  res.send(req.body);
+});
 
 app.post('/api/login', async function (req, res) {
   await login(req, res);

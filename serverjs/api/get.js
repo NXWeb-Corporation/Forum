@@ -1,10 +1,9 @@
 import { ObjectId } from "mongodb";
 import { account, post } from "../mongo.js";
-import { sanitize } from "../mongo-sanitize.js";
 
 export async function username(req, res) {
   try {
-    let profile = await account.findOne({ username: sanitize(new RegExp(`^${req.params.username}$`, 'i')) });
+    let profile = await account.findOne({ username: new RegExp(`^${req.params.username}$`, 'i') });
     if (profile) {
       res.send({ username: profile.username, description: profile.description, time: profile.time });
     } else res.send("No account found");
@@ -16,7 +15,7 @@ export async function username(req, res) {
 
 export async function comment(req, res) {
   try {
-    let main = await post.findOne({ _id: new ObjectId(String(sanitize(req.params.id))) }, { projection: { _id: 1, title: 1, comments: 1 } });
+    let main = await post.findOne({ _id: new ObjectId(String(req.params.id)) }, { projection: { _id: 1, title: 1, comments: 1 } });
     res.json(main)
   } catch (error) {
     console.warn(error);
